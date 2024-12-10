@@ -45,8 +45,40 @@ def RED(B):
     :param B: np.array, shape=(n, n), the basis of the lattice
     :return: np.array, shape=(n, n), the new generator matrix
     '''
-    # TODO: implement this function
-    pass
+    def orthogonal(m):
+        n = np.shape(m)
+        M = np.zeros(n, dtype=np.float64)
+        n = n[0]
+        M[0, :] = m[0, :]
+        for i in range(1, n):
+            M[i, :] = m[i, :]
+            for j in range(0, i):
+                u_ij = np.dot(m[i, :], M[j, :]) / (np.linalg.norm(M[j, :]) ** 2)
+                M[i, :] -= u_ij * M[j, :]
+        return M
+
+
+    def lll(v):
+        n = np.shape(v)
+        n = n[0]
+        k = 2
+        while k <= n:
+            print(k)
+            V = orthogonal(v[0:k, :])
+            for j in range(0, k-1):
+                u = np.dot(v[k - 1, :], V[j, :]) / (np.linalg.norm(V[j, :]) ** 2)
+                v[k - 1, :] = v[k - 1, :] - np.round(u) * v[j, :]
+            u = np.dot(v[k - 1, :], V[k - 2, :]) / (np.linalg.norm(V[k - 2, :]) ** 2)
+            if np.linalg.norm(V[k - 1, :]) ** 2 >= (3 / 4 - (u ** 2)) * (np.linalg.norm(V[k - 2, :]) ** 2):
+                k += 1
+            else:
+                v[[k-2,k-1],:] = v[[k-1,k-2],:] 
+                k = max(k - 1, 2)
+        return v
+
+    return lll(B)
+
+
 
 def ORTH(B):
     '''
@@ -57,6 +89,6 @@ def ORTH(B):
     :param B: np.array, shape=(n, n), the basis of the lattice
     :return: np.array, shape=(n, n), the new geserator matrix
     '''
-    # TODO: implement this function
-    pass
+    return np.linalg.cholesky(B @ B.T)
+    # return np.linalg.cholesky(B)
 
