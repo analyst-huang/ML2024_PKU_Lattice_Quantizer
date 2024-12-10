@@ -1,4 +1,5 @@
 import numpy as np
+from fpylll import IntegerMatrix, Vector, CVP
 
 def URAN(n):
     '''
@@ -32,6 +33,10 @@ def CLP(B, x):
     :param x: np.array, shape=(n, ), the point to be quantized
     :return: np.array, shape=(n, ), the integer coordinates of the point in the lattice closest to x
     '''
+    B_fpylll = IntegerMatrix.from_matrix(B.tolist())
+    x_fpylll = Vector(x.tolist())
+    v = CVP.closest_vector(B_fpylll, x_fpylll)
+    return np.array(v)
     # TODO: implement this function
     pass
 
