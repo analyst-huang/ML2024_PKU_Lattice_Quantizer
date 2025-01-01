@@ -64,11 +64,19 @@ import matplotlib.pyplot as plt
 # save_path = 'best_lattices.npy'
 # np.save(save_path, best_Bs)
 
-# a try for dimension 8
-B = Lattice_Optimizer.optimize(8)
-nsm, _ = estimate_NSM(B)
-print(B)
-print(nsm)
+# # a try for dimension 8
+# B = Lattice_Optimizer.optimize(8)
+# nsm, _ = estimate_NSM(B)
+# print(B)
+# print(nsm)
+
+# test new CLP algorithm
+B = np.array([[1,0,0, 0], [0,1,0,0], [0,0,1,0], [0,0,0,1]])
+# B = np.array([[1,1/2], [0, np.sqrt(3)/2]])
+r = np.array([0,0,0,1])
+u = CLP(B, r)
+print(u)
+
 
 
 

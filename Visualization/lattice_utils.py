@@ -40,7 +40,7 @@ def CLP(B, x):
     '''a numerically unstable way to find the closest point in the lattice
     fpylll only support integer matrix, so we need to convert the input to integer matrix by multiplying a large number, which may results in numerical instability'''
 
-    scale = 10000   
+    scale = 1000000   
     scaled_B = B * scale
     scaled_x = x * scale
     scaled_B = scaled_B.astype(int)
@@ -54,74 +54,125 @@ def CLP(B, x):
 
 
 
-def new_CLP(G_tmp, r_tmp): 
 
+    '''psuedo code:
+    input: n ,G, r; output: \hat{u} \in Z^n
+    C = inf
+    i = n+1
+    d_j = n, j=1, ..., n
+    lambda_{n+1} = 0
+    F_n,j = r_j, j=1, ..., n
+    LOOP
+        do{
+            if i!=1:
+                i = i-1
+                F_j-1,i = F_j,i - u_j*G_j,i   , j = d_i, d_i-1, ..., i+1
+
+                p_i = F_i,i / G_i,i
+                u_i = round(p_i)
+                y = (p_i - u_i) * G_i,i
+                delta_i = sign(y)
+                lambda_i = lambda_i+1 + y^2
+
+            else:
+                \hat{u} = u
+                C = lambda_1
+        }  while (C > lambda_i)
+        do{
+            if i==n:
+                return \hat{u} and exit
+            else:
+                i = i+1
+                u_i = u_i + delta_i
+                delta_i = -delta_i - sign(delta_i)
+                y = (p_i - u_i) * G_i,i
+                lambda_i = lambda_i+1 + y^2
+
+        } while (lambda_i > C)
+
+        d_j = i, j = m, m+1, ..., i-1
+        for j = m-1, m-2, ..., 1:
+            if d_j < i
+                d_j = i
+            else:
+                goto LOOP
+        
+        goto LOOP
+    '''
     # the orginal code in paper index start from 1
     # so we need to convert the index to start from 0
 
-    G = np.zeros((np.shape(G_tmp)[0]+1, np.shape(G_tmp)[1]+1))
-    G[1:, 1:] = G_tmp.copy()
-    r = np.zeros(np.shape(r_tmp)[0]+1)
-    r[1:] = r_tmp.copy()
+    # G = np.zeros((np.shape(G_tmp)[0]+1, np.shape(G_tmp)[1]+1))
+    # G[1:, 1:] = G_tmp.copy()
+    # r = np.zeros(np.shape(r_tmp)[0]+1)
+    # r[1:] = r_tmp.copy()
 
 
-    C = np.inf
-    n = np.shape(G)[0] - 1
-    i = n + 1
-    d = np.zeros(n+1, dtype=int)
-    for j in range(1, n+1, 1):
-        d[j] = n
-    lambda_ = np.zeros(n+2)
-    F = np.zeros((n+1, n+1))
-    F[n, 1:] = r[1:]
-    u = np.zeros(n+1)
-    p = np.zeros(n+1)
-    delta = np.zeros(n+1)
+    # C = np.inf
+    # n = np.shape(G)[0] - 1
+    # i = n + 1
+    # d = np.zeros(n+1, dtype=int)
+    # for j in range(1, n+1, 1):
+    #     d[j] = n
+    # lambda_ = np.zeros(n+2)
+    # F = np.zeros((n+1, n+1))
+    # F[n, 1:] = r[1:]
+    # u = np.zeros(n+1)
+    # p = np.zeros(n+1)
+    # delta = np.zeros(n+1)
 
-    def my_sign(x):
-        if x <= 0:
-            return -1
-        return 1
+    # def my_sign(x):
+    #     if x <= 0:
+    #         return -1
+    #     return 1
     
-    while True:
-        flag1 = False
-        while not flag1 or lambda_[i] < C:
-            # print("first loop") 
-            flag1 = True
-            if i != 1:
-                i -= 1
-                for j in range(d[i], i, -1):
-                    F[j-1, i] = F[j, i] - u[j]*G[j, i]
-                p[i] = F[i, i] / G[i, i]
-                u[i] = np.rint(p[i])
-                y = (p[i] - u[i]) * G[i, i]
-                delta[i] = my_sign(y)
-                lambda_[i] = lambda_[i+1] + y**2
-            else:
-                u_ = u[1:]
-                C = lambda_[1]
+    # while True:
+    #     flag1 = False
+    #     while not flag1 or lambda_[i] < C:
+    #         # print("first loop") 
+    #         flag1 = True
+    #         if i != 1:
+    #             i -= 1
+    #             for j in range(d[i], i, -1):
+    #                 F[j-1, i] = F[j, i] - u[j]*G[j, i]
+    #             p[i] = F[i, i] / G[i, i]
+    #             u[i] = np.rint(p[i])
+    #             y = (p[i] - u[i]) * G[i, i]
+    #             delta[i] = my_sign(y)
+    #             lambda_[i] = lambda_[i+1] + y**2
+    #         else:
+    #             u_ = u[1:]
+    #             C = lambda_[1]
 
-        m = i
-        flag2 = False
-        while not flag2 or lambda_[i] >= C:
-            # print("second loop")
-            flag2 = True
-            if i == n:
-                return u_
-            else:
-                i += 1
-                u[i] = u[i] + delta[i]
-                delta[i] = -delta[i] - my_sign(delta[i])
-                y = (p[i] - u[i]) * G[i, i]
-                lambda_[i] = lambda_[i+1] + y**2
+    #     m = i
+    #     flag2 = False
+    #     while not flag2 or lambda_[i] >= C:
+    #         # print("second loop")
+    #         flag2 = True
+    #         if i == n:
+    #             return u_
+    #         else:
+    #             i += 1
+    #             u[i] = u[i] + delta[i]
+    #             delta[i] = -delta[i] - my_sign(delta[i])
+    #             y = (p[i] - u[i]) * G[i, i]
+    #             lambda_[i] = lambda_[i+1] + y**2
 
-        for j in range(m, i, 1):
-            d[j] = i
-        for j in range(m-1, 0, -1):
-            if d[j] < i:
-                d[j] = i
-            else:
-                break
+    #     for j in range(m, i, 1):
+    #         d[j] = i
+    #     for j in range(m-1, 0, -1):
+    #         if d[j] < i:
+    #             d[j] = i
+    #         else:
+    #             break
+
+
+
+   
+
+
+
+
 
     
 def RED(B):
@@ -231,7 +282,7 @@ def estimate_NSM(B):
     
     mean_sum= 0
     var_sum = 0
-    for i in tqdm(range(T)):
+    for i in range(T):
         tmp = estimate_G(B)
         mean_sum+= tmp
         var_sum+= tmp*tmp
