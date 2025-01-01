@@ -40,6 +40,9 @@ def visualize_3d_data(data, title, xlabel, ylabel, zlabel):
     ax.set_zlim(bottom=0.080, top=0.1)
     plt.show()
 
+def visualize_higher_dimension_lattice(data):
+    pass
+
 # fisrt get data points
 # data = generate_2d_lattice(np.pi/2, 10)
 data = np.load("data.npy")
