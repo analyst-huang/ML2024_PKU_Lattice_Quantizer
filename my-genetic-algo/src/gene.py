@@ -2,13 +2,15 @@ import numpy as np
 from fpylll import *
 from gene_utils import *
 from tqdm import tqdm
-
+#import sys
+#sys.path.append('../../Grad_Method/algo/basic')
+from Lattice_Optimizer import Lattice_Optimizer
 
 class Gene:
     def __init__(self, n):
         self.n = n
-        self.population_size = 100
-        self.generations = 100
+        self.population_size = 40
+        self.generations = 60
         self.mutation_rate = 0.2
         self.matrices = self.initialize_population()
 
@@ -23,8 +25,8 @@ class Gene:
         # decide wheter to mutate
         if np.random.rand() > self.mutation_rate:
             return matrix
-        noise = np.random.normal(0, 1, matrix.shape)
-        mutated_matrix = matrix + noise
+        
+        mutated_matrix = Lattice_Optimizer.descent(matrix,n=self.n,mu0=0.005,T=1000)
         return normalize(mutated_matrix)
 
     def reproduce(self, parent1, parent2):
@@ -51,4 +53,6 @@ class Gene:
             self.matrices = new_matrices
 
         best_matrix = self.matrices[np.argmax(fitness_values)]
+        best_matrix=ORTH(RED(Lattice_Optimizer.descent(best_matrix,n=self.n,T=100000)))
+        best_matrix=ORTH(RED(best_matrix))
         return best_matrix
